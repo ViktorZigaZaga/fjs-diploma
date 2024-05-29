@@ -4,7 +4,7 @@ import { RootState } from "../store";
 const baseQuery = fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api`,
     prepareHeaders(headers, { getState }) {
-        const token = (getState() as RootState).auth.user?.token || localStorage.getItem('access_token');
+        const token = (getState() as RootState).auth.token || localStorage.getItem('access_token');
         if (token && token !== null) {
             headers.set('Authorization', `Bearer ${token}`);
         }

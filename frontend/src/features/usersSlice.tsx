@@ -21,6 +21,9 @@ export const slice = createSlice({
             .addMatcher(usersApi.endpoints.getListUsersAdmin.matchFulfilled, (state, action) => {
                 state.users = action.payload;
             })
+            .addMatcher(usersApi.endpoints.getListUsersManager.matchFulfilled, (state, action) => {
+                state.users = action.payload;
+            })
     }
 })
 

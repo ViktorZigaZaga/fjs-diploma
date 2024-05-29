@@ -12,7 +12,7 @@ import { Controller,
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { roleEnum } from 'src/enums/roleEnum';
-// JwtAuthGuard, 
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ID } from 'src/interfaces/ID.types';
 import { ReservationsService } from './reservations.service';
 import { DtoValidationPipe } from 'src/validators/dto.validation.pipe';
@@ -20,10 +20,9 @@ import { ReservationDto } from 'src/interfaces/reservation/ReservationDto.interf
 import { 
     SearchReservationOptions 
 } from 'src/interfaces/reservation/SearchReservationOptions.interface';
+import { UserDocument } from 'src/schemas/user.schema';
 
-@UseGuards(
-    // JwtAuthGuard, 
-    RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('api')
 export class ReservationsController {
     constructor(
@@ -43,7 +42,8 @@ export class ReservationsController {
     async getReservationListByClient(
         @Query() searchReservationOptions: SearchReservationOptions,
     ) {
-        return this.reservationService.getReservations(searchReservationOptions);
+        const reservations = await this.reservationService.getReservations(searchReservationOptions);
+        return reservations
     }
 
     @Roles(roleEnum.manager)
@@ -59,9 +59,9 @@ export class ReservationsController {
     @Delete('/client/reservations/:id')
     async deleteReservationByClient(
         @Param('id') id: ID,
-        @Request() req: any
+        @Request() req: any,
     ) {
-        const reservationListByClient = this.getReservationListByClient(req.user.id);
+        const reservationListByClient = this.getReservationListByClient(req.user._id);
         const deleteId = (await reservationListByClient).filter(item => item.userId === id);
         if(!deleteId) {
             throw new ForbiddenException("ID текущего пользователя не совпадает с ID пользователя в брони");

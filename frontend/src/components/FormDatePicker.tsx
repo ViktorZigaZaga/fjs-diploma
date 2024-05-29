@@ -22,8 +22,12 @@ export const FormDatePicker: React.FC<DateSearchProps> = ({ filter, setFilter })
                 <DemoContainer components={['DatePicker', 'DatePicker']}>
                     <DatePicker
                         label="Дата заезда"
+                        slotProps={{
+                          textField: {
+                            helperText: 'MM-DD-YYYY',
+                          },
+                        }}
                         format="DD-MM-YYYY"
-                        value={filter.dateStart}
                         onChange={(newValue) => setFilter({...filter, dateStart: newValue})}
                     />
                 </DemoContainer>
@@ -33,8 +37,12 @@ export const FormDatePicker: React.FC<DateSearchProps> = ({ filter, setFilter })
                 <DemoContainer components={['DatePicker', 'DatePicker']}>
                     <DatePicker
                         label="Дата выезда"
+                        slotProps={{
+                            textField: {
+                              helperText: 'MM-DD-YYYY',
+                            },
+                          }}
                         format="DD-MM-YYYY"
-                        value={filter.dateEnd}
                         onChange={(newValue) => setFilter({...filter, dateEnd: newValue})}
                     />
                 </DemoContainer>

@@ -1,20 +1,28 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { BaseQueryWithRetry } from "./api";
-import { HotelRoomData, HotelData } from "../../types/interfaces";
+import { HotelData } from "../../types/interfaces";
 
-export type RequestCreateHotelRoomData = FormData
-// Omit<HotelRoomData, "_id" | "createdAt" | "updatedAt" | "isEnabled">;
+export type RequestCreateHotelRoomData = {
+    data: FormData,
+}
+FormData;
+
+export type RequestUpdateHotelRoomData = {
+    _id: string,
+    data: FormData,
+}
+
+export type ResponseHotelData = Omit<HotelData, "limit" | "offset">
 
 export interface ResponseGetRoomData {
     id: string,
     description: string,
     images: string[],
-    hotel: HotelData
-}
-
-export interface ResponseGetListRoomsData {
-    hotelRooms: ResponseGetRoomData[],
-    totalCount: number
+    hotel: {
+        _id: string,
+        title: string,
+        description: string,
+    }
 }
 
 export interface RequestGetListRoomsData {
@@ -44,30 +52,24 @@ export const hotelRoomsApi = createApi({
             }),
             providesTags: ['HotelRoom']
         }),
-        getListRooms: builder.query<ResponseGetListRoomsData, RequestGetListRoomsData>({
+        getListRooms: builder.query<ResponseGetRoomData[], RequestGetListRoomsData>({
             query: (params) => ({
                 url: '/common/hotel-rooms/',
                 method: 'GET',
                 params
             }),
-            transformResponse(response: ResponseGetRoomData[], meta: any) {
-                return { 
-                    hotelRooms: response, 
-                    totalCount: Number(meta?.response?.headers.get('X-Total-Count')),
-                }
-            },
             providesTags: ['HotelRoom']
         }), 
         createRoomAdmin: builder.mutation<ResponseChangeHotelRoomData, RequestCreateHotelRoomData>({
-            query: (body) => ({
+            query: ({data}) => ({
                 url: `/admin/hotel-rooms/`,
                 method: 'POST',
                 headers: { 'Content-Type': 'multipart/form-data' },
-                body
+                data
             }),
             invalidatesTags: ['HotelRoom']
         }),
-        updateRoomAdmin: builder.mutation<ResponseChangeHotelRoomData, HotelRoomData>({
+        updateRoomAdmin: builder.mutation<ResponseChangeHotelRoomData, RequestUpdateHotelRoomData>({
             query: ({_id, ...body}) => ({
                 url: `/admin/hotel-rooms/${_id}`,
                 method: 'PUT',

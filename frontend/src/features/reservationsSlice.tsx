@@ -1,17 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from '../store/store'
-import { 
-    ReservationsListData, 
-    ResponseGetListReservationsData, 
-    reservationsApi 
-} from "../store/services/reservations";
+import { ReservationsListData, reservationsApi} from "../store/services/reservations";
 
 interface InitialState {
-    data: (ResponseGetListReservationsData | ReservationsListData) | null
+    reservations: ReservationsListData[] | null
 }
 
 const initialState: InitialState = {
-    data: null,
+    reservations: null,
 }
 
 export const slice = createSlice({
@@ -22,25 +18,16 @@ export const slice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addMatcher(reservationsApi.endpoints.createReservationClient.matchFulfilled, (state, action) => {
-                state.data = action.payload;
-            })
             .addMatcher(reservationsApi.endpoints.getListReservationsClient.matchFulfilled, (state, action) => {
-                state.data = action.payload;
+                state.reservations = action.payload;
             })
             .addMatcher(reservationsApi.endpoints.getListReservationsManager.matchFulfilled, (state, action) => {
-                state.data = action.payload;
+                state.reservations = action.payload;
             })
-            // .addMatcher(reservationsApi.endpoints.deleteReservationClient.matchFulfilled, (state, action) => {
-            //     state.data = action.payload;
-            // })
-            // .addMatcher(reservationsApi.endpoints.deleteReservationClient.matchFulfilled, (state, action) => {
-            //     state.data = action.payload;
-            // })
     }
 })
 
 export const { logout } = slice.actions;
 export default slice.reducer;
 
-export const selectReservations = (state: RootState) => state.reservations.data;
+export const selectReservations = (state: RootState) => state.reservations;

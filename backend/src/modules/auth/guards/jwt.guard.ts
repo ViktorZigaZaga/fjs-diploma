@@ -13,5 +13,5 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
         if (!user) {
         throw new UnauthorizedException('Вы не авторизованы');
         }
-        return user._id;
+        return user;
     }}

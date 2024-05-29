@@ -1,56 +1,30 @@
-import { useState } from "react";
-import { Button, Container } from "react-bootstrap";
-import dayjs from 'dayjs';
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Container } from "react-bootstrap";
 import { ReservationsList } from "./ReservationsList";
 import { MyLoader } from "../MyLoader";
 import { Error } from "../Error/Error";
-import { FormDatePicker } from "./FormDatePicker";
-import { useGetListReservationsClientQuery } from "../../store/services/reservations";
+import { useGetListReservationsClientQuery, useGetListReservationsManagerQuery } from "../../store/services/reservations";
+import { selectUser, selectUserRoleId } from "../../features/authSlice";
 
 export default function ReservationsPage() {
 
-    const [filter, setFilter] = useState({
-        dateStart: dayjs(),
-        dateEnd: dayjs(),
-    });
-
-    const {data: data, isLoading, isError, error} = useGetListReservationsClientQuery(
-        {
-            userId: '',
-            dateStart: new Date(filter.dateStart.format('YYYY-MM-DD')), 
-            dateEnd: new Date(filter.dateEnd.format('YYYY-MM-DD'))
-        }
-    );
+    const { id } = useParams();
+    const user = useSelector(selectUser);
+    const userRoleId = useSelector(selectUserRoleId);
+    const {data: data, isLoading, isError, error} = !id ? useGetListReservationsClientQuery({ userId: userRoleId._id }) : useGetListReservationsManagerQuery(id);
 
     return(
 
         <Container className="shadow-sm rounded p-2 bg-white mb-3">
             <Container className="pb-4">
-                <h2 className="p-3"><strong>'user.name'</strong></h2>
-                <FormDatePicker filter={filter} setFilter={setFilter} />
-                <Button 
-                    className="d-flex justify-content-start mx-3"
-                    variant="primary" 
-                    type="submit"
-                >
-                    Искать
-                    {/* // {
-                    //     isLoading
-                    //     &&  <Spinner
-                    //             as="span"
-                    //             animation="border"
-                    //             size="sm"
-                    //             role="status"
-                    //             aria-hidden="true"
-                    //         />
-                    // } */}
-                </Button>
+                <h2 className="p-3"><strong>{!id ? user?.name : id}</strong></h2>
             </Container>
             {(isLoading) ? <MyLoader /> : (isError) 
                 ? <Error message={String(error)} />
-                : data?.reservations && data?.reservations.length
-                    ? <ReservationsList reservations={data.reservations} />
-                    : <h2 className="p-3">Список Ваших броней</h2>
+                : data
+                    ? <ReservationsList reservations={data} />
+                    : <h2 className="p-3">Список броней пользователя пуст</h2>
             }
         </Container>
     );

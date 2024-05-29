@@ -1,20 +1,15 @@
 import { Navbar, Container, Nav, Image, Button } from 'react-bootstrap';
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
-import { selectUser } from '../../features/authSlice';
+import { selectUser, selectUserRoleId } from '../../features/authSlice';
 import HeaderAuth from './HeaderAuth';
 import HeaderProfile from './HeaderProfile'
-import { useEffect } from 'react';
+import HeaderAuthAdmin from './HeaderAuthAdmin';
 
 export default function HeaderNavBar() {
 
-  const navigate = useNavigate()
   const user = useSelector(selectUser);
-  console.log(user);
-  useEffect(() => {
-    if(!user) navigate('/')
-  }, [user])
-
+  const userRoleId = useSelector(selectUserRoleId);
   
   return (
     <Navbar expand="lg">
@@ -28,14 +23,20 @@ export default function HeaderNavBar() {
         <Navbar.Toggle />
         <Navbar.Collapse className='shadow-sm justify-content-end bg-white rounded p-2' id="navbarScroll">
           <Nav navbarScroll>
-            { user 
-              ? <><Link to="/reservations" className="mb-1 text-decoration-none">
+            { userRoleId.role === "admin" &&
+              <HeaderAuthAdmin />
+            }
+            { userRoleId.role === "client" &&
+              <Link to="/reservations" className="mb-1 text-decoration-none">
                   <Button className="d-flex justify-content-start mx-3" variant="primary">
                     Мои брони
                   </Button>
                 </Link>
-                <HeaderProfile /></>
-              : <HeaderAuth />} 
+            }
+            { user
+              ? <HeaderProfile />
+              : <HeaderAuth />
+            } 
           </Nav>
         </Navbar.Collapse>
       </Container>

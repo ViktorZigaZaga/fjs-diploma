@@ -69,7 +69,7 @@ export class ReservationsService implements IReservationService {
         try {
             await this.ReservationModel.findByIdAndDelete(id).exec();
         } catch(err) {
-            throw new BadRequestException(`Ошибка при удалении брони: ${err}`);
+            throw new BadRequestException(`Ошибка при удалении брони (брони с указанным ID не существует): ${err}`);
         }
     }
 
@@ -81,7 +81,7 @@ export class ReservationsService implements IReservationService {
             filter.dateStart && (parseFilter.dateStart = { $gte: filter.dateStart });
             filter.dateEnd && (parseFilter.dateEnd = { $lte: filter.dateEnd });
             return await this.ReservationModel.find(parseFilter)
-            .select('-__v -_id -userId')
+            .select('-__v -userId')
             .populate([
                 {
                     path: 'roomId',

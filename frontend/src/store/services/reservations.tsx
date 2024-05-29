@@ -5,20 +5,16 @@ import { HotelData, HotelRoomData, ReservationData } from "../../types/interface
 export type RequestCreateReservationsData = Omit<ReservationData, "_id">
 
 export type ResponseHotelRoomReservation = Omit<HotelRoomData, "_id" | "isEnabled" | "hotelId">
-export type ResponseHotelReservation = Omit<HotelData, "_id">
+export type ResponseHotelReservation = Omit<HotelData, "_id" | "limit" | "offset">
 export interface ReservationsListData{
     dateStart: string,
     dateEnd: string,
     hotelRoom: ResponseHotelRoomReservation,
-    hotel: ResponseHotelReservation
+    hotelId: ResponseHotelReservation,
+    _id: string
 }
 
 export type RequestGetListReservationsClientData = Omit<ReservationData, "_id" | "roomId" | "hotelId">;
-
-export interface ResponseGetListReservationsData {
-    reservations: ReservationsListData[],
-    totalCount: number
-}
 
 export const reservationsApi = createApi({
     reducerPath: 'reservationsApi',
@@ -27,32 +23,20 @@ export const reservationsApi = createApi({
     tagTypes: ['Reservation'],
     endpoints: (builder) => ({
         getListReservationsClient: builder
-            .query<ResponseGetListReservationsData, RequestGetListReservationsClientData>({
+            .query<ReservationsListData[], RequestGetListReservationsClientData>({
                 query: (params) => ({
                     url: '/client/reservations',
                     method: 'GET',  
                     params      
                 }),
-                transformResponse(response: ReservationsListData[], meta: any) {
-                    return { 
-                        reservations: response, 
-                        totalCount: Number(meta?.response?.headers.get('X-Total-Count')),
-                    }
-                },
                 providesTags: ['Reservation'],
             }),
         getListReservationsManager: builder
-            .query<ResponseGetListReservationsData, string>({
+            .query<ReservationsListData[], string>({
                 query: (userId) => ({
                     url: `/manager/reservations/${userId}`,
                     method: 'GET',
                 }),
-                transformResponse(response: ReservationsListData[], meta: any) {
-                    return { 
-                        reservations: response, 
-                        totalCount: Number(meta?.response?.headers.get('X-Total-Count'))
-                    }
-                },
                 providesTags: ['Reservation'],
             }),
         createReservationClient: builder

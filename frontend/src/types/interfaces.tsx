@@ -22,7 +22,7 @@ export interface HotelData {
 export interface HotelRoomData {
   _id: string,
   description: string,
-  images: string[],
+  images: File[],
   isEnabled: boolean,
   hotelId: string,
 }

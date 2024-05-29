@@ -13,7 +13,7 @@ import { UsersService } from "../users/users.service";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { roleEnum } from "src/enums/roleEnum";
-// import { JwtAuthGuard } from "../auth/guards/jwt.auth.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { WsExceptionsFilter } from "src/filters/WsException.Filter";
 
 @WebSocketGateway({
@@ -32,9 +32,7 @@ export class SupportRequestGateway {
     server: Server;
 
     @UseFilters(new WsExceptionsFilter())
-    @UseGuards(
-        // JwtAuthGuard, 
-        RolesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(roleEnum.client, roleEnum.manager)
     @SubscribeMessage('subscribeToChat') 
     async handleSubscribeToChat(

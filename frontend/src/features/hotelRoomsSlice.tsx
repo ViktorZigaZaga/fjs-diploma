@@ -1,18 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from '../store/store'
-import { 
-    ResponseChangeHotelRoomData, 
-    ResponseGetListRoomsData, 
-    ResponseGetRoomData, 
-    hotelRoomsApi 
-} from "../store/services/hotelRooms";
+import { ResponseGetRoomData, hotelRoomsApi } from "../store/services/hotelRooms";
 
 interface InitialState {
-    data: (ResponseGetRoomData | ResponseGetListRoomsData | ResponseChangeHotelRoomData) | null,
+    rooms: ResponseGetRoomData[] | null,
 }
 
 const initialState: InitialState = {
-    data: null,
+    rooms: null,
 }
 
 export const slice = createSlice({
@@ -24,16 +19,7 @@ export const slice = createSlice({
     extraReducers: (builder) => {
         builder
             .addMatcher(hotelRoomsApi.endpoints.getListRooms.matchFulfilled, (state, action) => {
-                state.data = action.payload;
-            })
-            .addMatcher(hotelRoomsApi.endpoints.getRoom.matchFulfilled, (state, action) => {
-                state.data = action.payload;
-            })
-            .addMatcher(hotelRoomsApi.endpoints.updateRoomAdmin.matchFulfilled, (state, action) => {
-                state.data = action.payload;
-            })
-            .addMatcher(hotelRoomsApi.endpoints.createRoomAdmin.matchFulfilled, (state, action) => {
-                state.data = action.payload;
+                state.rooms = action.payload;
             })
     }
 })
@@ -41,4 +27,4 @@ export const slice = createSlice({
 export const { logout } = slice.actions;
 export default slice.reducer;
 
-export const selectHotelRooms = (state: RootState) => state.hotelRooms.data;
+export const selectHotelRooms = (state: RootState) => state.hotelRooms.rooms;

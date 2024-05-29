@@ -6,6 +6,7 @@ import hotels from "../features/hotelsSlice";
 import hotelRooms from "../features/hotelRoomsSlice";
 import reservations from "../features/reservationsSlice";
 import supportRequest from "../features/supportRequestSlice";
+import socketIO from '../features/socketSlice';
 import { authApi } from "./services/auth";
 import { usersApi } from "./services/users";
 import { hotelsApi } from "./services/hotels";
@@ -27,7 +28,7 @@ export const store = configureStore({
         hotelRooms,
         reservations,
         supportRequest,
-        // socketIO: socketIOReducer,
+        socketIO,
     }, 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware()
         .concat(

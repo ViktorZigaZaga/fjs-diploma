@@ -5,17 +5,15 @@ import {
     Param, 
     Post, 
     Put,
-    Query, 
-    Request, 
-    UploadedFiles, 
-    UseFilters, 
+    Query,
+    UploadedFiles,
     UseGuards, 
     UseInterceptors 
 } from "@nestjs/common";
 import { Roles } from "src/modules/auth/decorators/roles.decorator";
 import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { roleEnum } from "src/enums/roleEnum";
-// import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.auth.guard';
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { ID } from "src/interfaces/ID.types";
 import { HotelsService } from "../hotels/hotels.service";
 import { HotelRoomsService } from "./hotel-rooms.service";
@@ -33,11 +31,8 @@ export class HotelRoomsController {
         private hotelRoomsService: HotelRoomsService,
     ) {}
 
-    // @UseGuards(
-    //     // JwtAuthGuard,
-    //      RolesGuard
-    //     )
-    // @Roles(roleEnum.admin)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(roleEnum.admin)
     @Post('/admin/hotel-rooms/')
     @UseInterceptors(MulterFilesInterceptor())
     async createRoom(
@@ -47,7 +42,7 @@ export class HotelRoomsController {
         const hotel = await this.hotelsService.findById(hotelRoomDtoValidate.hotel);
         const data = Object.assign({}, hotelRoomDtoValidate, {
             images: files.map((image) => image.filename),
-          });
+        });
         const hotelRoom = await this.hotelRoomsService.create(data);
 
         return {
@@ -59,11 +54,8 @@ export class HotelRoomsController {
         };
     }
 
-    // @UseGuards(
-    //     // JwtAuthGuard,
-    //      RolesGuard
-    //     )
-    // @Roles(roleEnum.admin)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(roleEnum.admin)
     @Put('/admin/hotel-rooms/:id')
     @UseInterceptors(MulterFilesInterceptor())
     async updateRoom(
@@ -102,8 +94,9 @@ export class HotelRoomsController {
                 description,
                 images,
                 hotel: {
-                  id: hotel.id,
+                  _id: hotel.id,
                   title: hotel.title,
+                  description: hotel.description,
                 }
             }
         })
@@ -119,7 +112,7 @@ export class HotelRoomsController {
             description: description,
             images: images,
             hotel: {
-                id: hotelAnswer._id,
+                _id: hotelAnswer._id,
                 title: hotelAnswer.title,
                 description: hotelAnswer.description,
             }

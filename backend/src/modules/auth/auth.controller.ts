@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Req, Res } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards, Req, Res, Get } from "@nestjs/common";
 import { Response, Request } from "express";
 import { JwtService } from "@nestjs/jwt";
 import { AuthService } from "./auth.service";
@@ -55,5 +55,11 @@ export class AuthController {
     ): Promise<void> {
         response.clearCookie('access_token');
         await this.authService.logout(response);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/auth/currentUser')
+    async getCurrentUser(@Req() req: Request) {
+        return req.user; 
     }
 }

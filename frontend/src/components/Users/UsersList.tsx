@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { UsersListData } from "../../store/services/users";
-import { Button, Container, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectUser } from "../../features/authSlice";
+import { Button, Container, Table } from "react-bootstrap";
+import { UsersListData } from "../../store/services/users";
+import { selectUserRoleId } from "../../features/authSlice";
 
 interface UsersListProps {
     users: UsersListData[], 
@@ -12,10 +12,7 @@ interface UsersListProps {
 
 export const UsersList: FC<UsersListProps> = ({ users, page }) => {
 
-    // const user = useSelector(selectUser);
-    // useEffect(() => {
-    //     if(!user) navigate('/')
-    //   }, [user])    
+    const userRoleId = useSelector(selectUserRoleId); 
 
     return(
         <Container>
@@ -26,8 +23,9 @@ export const UsersList: FC<UsersListProps> = ({ users, page }) => {
                         <th scope="col">ФИО</th>
                         <th scope="col">Почта</th>
                         <th scope="col">Телефон</th>
-                        {/* Если менеджер то показать */}
-                        <th scope="col">Список броней</th>
+                        {userRoleId.role === 'manager' 
+                            && <th scope="col">Список броней</th>
+                        }   
                     </tr>
                 </thead>
                 <tbody>
@@ -38,12 +36,13 @@ export const UsersList: FC<UsersListProps> = ({ users, page }) => {
                             <td>{user.name}</td>
                             <td>{user.email}</td>
                             <td>{user.contactPhone}</td>
-                            {/* Если менеджер то показать */}
-                            <td>
-                                <Link to={`/reservations?id=${user._id}`} className="text-decoration-none">
-                                    <Button variant="warning">Посмотреть</Button>
-                                </Link>
-                            </td>
+                            {userRoleId.role === 'manager' 
+                                && <td>
+                                    <Link to={`/reservations/${user._id}`} className="text-decoration-none">
+                                        <Button variant="warning">Посмотреть</Button>
+                                    </Link>
+                                </td>
+                            }
                         </tr>
                     ))}
                 </tbody>

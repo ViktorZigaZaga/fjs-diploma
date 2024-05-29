@@ -13,7 +13,7 @@ import { ID } from "src/interfaces/ID.types";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { roleEnum } from "src/enums/roleEnum";
-// import { JwtAuthGuard } from "../auth/guards/jwt.auth.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { UsersService } from "../users/users.service";
 import { SupportRequestService } from "./support-request.service";
 import { SupportRequestClientService } from "./support-request-client.service";
@@ -25,10 +25,7 @@ import { MarkMessagesAsReadDto } from "src/interfaces/support/MarkMessagesAsRead
 import { SendMessageDto } from "src/interfaces/support/SendMessageDto.interface";
 
 @Controller('api')
-@UseGuards(
-    // JwtAuthGuard,
-     RolesGuard
-    )
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class SupportRequestController{
     constructor(
         private usersService: UsersService,
@@ -70,7 +67,7 @@ export class SupportRequestController{
         const supportRequests = await this.supportRequestService.findSupportRequests(query);
         return supportRequests.map((item) => {
             return { 
-                id: item._id,
+                _id: item._id,
                 createdAt: item.createdAt,
                 isActive: item.isActive,
                 hasNewMessages: Boolean(
@@ -90,7 +87,7 @@ export class SupportRequestController{
         const supportRequests = await this.supportRequestService.findSupportRequests(query);
         return supportRequests.map((item) => {        
             return {
-                id: item._id,
+                _id: item._id,
                 createdAt: item.createdAt,
                 isActive: item.isActive,
                 hasNewMessages: Boolean(
@@ -111,16 +108,17 @@ export class SupportRequestController{
     ) {
         const messages = await this.supportRequestService.getMessages(id);
         const user = await this.usersService.findById(messages[0].author)
-        if(req.user.role === roleEnum.client && req.user._id !== user._id){
+        if(req.user.role === roleEnum.client && req.user.id !== user.id){
             throw new BadRequestException('У Вас нет доступа к этому запросу поддержки.')
         }
         return messages.map((item) => {
             return {
-                id: item._id,
-                createAt: item.sentAt.toString(),
-                readAt: item.readAt?.toString() || null,
+                _id: item._id,
+                createAt: item.sentAt,
+                text: item.text,
+                readAt: item.readAt || null,
                 author: {
-                    id: user._id,
+                    _id: user._id,
                     name: user.name
                 }
             }
@@ -134,10 +132,10 @@ export class SupportRequestController{
         @Body(DtoValidationPipe) body: SendMessageDto,
         @Request() req: any,
     ) {
-        if(req.user.role === roleEnum.client && req.user._id !== body.author) {
-            throw new BadRequestException('У Вас нет доступа к этому запросу поддержки.') 
-        }
-        const newMessage = await this.supportRequestService.sendMessage({
+        // if(req.user.role === roleEnum.client && req.user.id !== body.author) {
+        //     throw new BadRequestException('У Вас нет доступа к этому запросу поддержки....') 
+        // }
+        const {_id, sentAt, text, readAt} = await this.supportRequestService.sendMessage({
             author: body.author,
             supportRequest: id,
             text: body.text,
@@ -145,12 +143,12 @@ export class SupportRequestController{
         const user = await this.usersService.findById(body.author);
 
         return {
-            id: newMessage._id,
-            createdAt: newMessage.sentAt,
-            text: newMessage.text,
-            readAt: newMessage.readAt,
+            _id: _id,
+            createdAt: sentAt,
+            readAt: readAt,
+            text: text,
             author: {
-              id: user._id,
+              _id: user._id,
               name: user.name
             }
         }
